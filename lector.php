@@ -42,6 +42,8 @@ if ($daemon == TRUE) {
 
 set_time_limit(0); // So PHP never times out
 require_once("functions.php");
+require_once("modules.php");
+require_once("ircMsg.php");
 
 $lecture = explode("\n", trim(file_get_contents("lecture.txt")));
 
