@@ -9,26 +9,31 @@ Date Finished: Sunday, September 12, 2010
 Version: 2.0
 */
 /*************** CONFIGURATION ***************/
-// NickServ Interface Configuration
-$nick = "Lector";
-$registered = TRUE;
-$password = "d|g!74ldrp3pper2012";
-$lector = "Romnous";
-$oper = "Bren2010";
-$accessArray = array(array('level' => 2, 'hostmask' => 'Bren2010!Bren2010@bren2010.com'));
+$config = parse_ini_file("config.ini", TRUE);
 
-$server = "irc.hackthissite.org";
-$port = "6667";
-$channel = "#bren2010";
+$nick = $config['nickserv']['nick'];
+$registered = $config['nickserv']['registered'];
+$password = $config['nickserv']['password'];
 
-$intro = "The lecture is about to begin, so the channel will be muted until the speaker periodically unmutes it for questions.  Our speaker today is " . $lector . ", and I hope you enjoy the lecture!";
-$postIntro = "There is currently a lecture proceeding in " . $channel . ".  If you don't understand, it's fine;  the lecture recording will be posted on the site so you can view it in it's entirety later.  Please make sure you have also joined the Ventrillo the lecture is currently being discussed in as well!\nVentrillo can be downloaded at http://www.ventrilo.com/download.php and you should connect to vent.i-cog.org:9765.";
-$rules = "Any flooding, trolling, flaming, or interuption will result in a verbal warning.  If it continues, you will be kick banned from the channel.  If you feel a ban should be repealed, contact Monica."; 
+$accessArray = $config['access'];
+
+$server = $config['server']['server'];
+$port = $config['server']['port'];
+$channel = $config['server']['channel'];
+
+$iniVar = array("%CHANNEL", "%LECTURER");
+$iniVal = array($config['server']['channel'], $config['lecture']['lector']);
+
+$intro = str_replace($iniVar, $iniVal, $config['lecture']['intro']);
+$postIntro = str_replace($iniVar, $iniVal, $config['lecture']['postIntro']);
+$rules = str_replace($iniVar, $iniVal, $config['lecture']['rules']);
+
+$lector = $config['lecture']['lector'];
 
 // System Settings
-$daemon = FALSE; // Run the bot as a daemon.
-$output = TRUE; // Whether or not to output data sent to it.
-$record = FALSE; // Used for recording the lecture.
+$daemon = $config['system']['daemon']; // Run the bot as a daemon.
+$output = $config['system']['output']; // Whether or not to output data sent to it.
+$record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
 if ($daemon == TRUE) {
