@@ -36,18 +36,24 @@ $output = $config['system']['output']; // Whether or not to output data sent to 
 $record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
+//error_reporting(0);
+
 if ($daemon == TRUE) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
 }
 
 set_time_limit(0); // So PHP never times out
+
 require_once("functions.php");
+require_once("modules.php");
+
+$modules = new modules();
 
 $lecture = explode("\n", trim(file_get_contents("lecture.txt")));
 
 $position = 0;
 $mode = "q";
-$initiated = FALSE;
+$initiated = TRUE;
 
 $startTime = time();
 $lectureHandle = fopen("recording.log", "w");
@@ -66,204 +72,67 @@ while (1) {
 		
 		$pingCheck = substr($data, 0, strlen("PING :"));
 		
-		if ($pingCheck == "PING :") {
-			cmd_send("PONG :" . substr($data, $pingCheck + strlen("PING :")));
+		if ($pingCheck == "PING :") { // Pings are isolated because of unusual format.
+			$modules->hook("ping", $data);
 		} else {
-			$colon = strpos($data, " :");
+			$dataArray = array();
 			
-			if (!empty($colon)) {
-				$ircData = substr($data, 0, $colon);
-				$message = trim(substr($data, $colon + 2));
+			// Extract values from data.
+			$search = strpos($data, " :");
+			
+			if ($search != FALSE) {
+				$message = trim(substr($data, strpos($data, " :") + 2));
+				
+				$header = trim(substr($data, 1, strpos($data, " :")));
+				$headerArray = explode(" ", $header);
 			} else {
-				$ircData = substr($data, 0);
 				$message = "";
+				
+				$header = trim(substr($data, 0));
+				$headerArray = explode(" ", $header);
 			}
-		
-			$remainingData = explode(" ", substr($ircData, 1));
-
-			$hostmask = $remainingData[0];
-			$action = $remainingData[1];
 			
-			switch ($action) {
-				case "PRIVMSG": // Primarily for parsing commands and can be used for logging the user in.
-					$who = substr($hostmask, 0, strpos($hostmask, "!"));
-					$where = $remainingData[2];
-					
-					if ($where == $nick) { // For issuing commands
-						$search = searchAccess($hostmask, $accessArray);
-						
-						if ($search !== FALSE) { // This user is allowed to execute commands.
-							$tempArray = array_filter(explode(" ", $message));
-							
-							$command = $tempArray[0];
-							unset($tempArray[0]);
-							$paramArray = $tempArray;
-							
-							switch (true) {
-								case $command == "i" && $accessArray[$search]['level'] >= 1: // Initiates the lecture (Level 1 'lecturer' required.)
-									$initiated = TRUE;
-									$mode = "l";
-									$position = 0;
-									
-									cmd_send("MODE " . $channel . " +m");
-									talk($channel, $intro . "\n" . $rules);
-										
-									$time = format(time() - $startTime);
-									fwrite ($lectureHandle, "" . $time . " <" . $nick . "> " . $intro . "\n");
-									fwrite ($lectureHandle, "" . $time . " <" . $nick . "> " . $rules . "\n");
-										
-									say("The lecture has been started.");
-									break;
-									
-								case $command == "n" && $accessArray[$search]['level'] >= 1: // Plays the next slide (Level 1 'lecturer' required.)
-									if (isset($lecture[$position]) && $initiated == TRUE) {
-										say("Playing slide " . $position);
-										talk($channel, $lecture[$position]);
-										
-										
-										$time = format(time() - $startTime);
-										fwrite ($lectureHandle, "" . $time . " <" . $nick . "> " . $lecture[$position] . "\n");
-										
-										$position++;
-									} else {
-										say("Out of slides.");
-									}
-									break;
-									
-								case $command == "p" && $accessArray[$search]['level'] >= 1: // Plays previous slide (Level 1 'lecturer' required.)
-									$realPos = $position - 2;
-									
-									if (isset($lecture[$realPos]) && $initiated == TRUE) {
-										say("Playing slide " . $realPos);
-										talk($channel, $lecture[$realPos]);
-										
-										
-										$time = format(time() - $startTime);
-										fwrite ($lectureHandle, "" . $time . " <" . $nick . "> " . $lecture[$realPos] . "\n");
-										
-									} else {
-										say("There is no previous slide.");
-									}
-									break;
-									
-								case $command == "s" && $accessArray[$search]['level'] >= 1: // Plays selected slide (Level 1 'lecturer' required.)
-									$slide = trim(substr($message, 1));
-
-									if ($slide !== NULL && ctype_digit($slide) && $initiated == TRUE) {
-										if (isset($lecture[$slide])) {
-											say("Playing slide " . $slide . " on request.");
-											talk($channel, $lecture[$slide]);
-											
-										
-											$time = format(time() - $startTime);
-											fwrite ($lectureHandle, "" . $time . " <" . $nick . "> " . $lecture[$slide] . "\n");
-										
-										} else {
-											say("Invalid slide number.\n");
-										}
-									} else {
-										say("Command 's' requires a numeric slide number to play.");
-									}
-									break;
-									
-								case $command == "c" && $accessArray[$search]['level'] >= 1: // Changes slide position (Level 1 'lecturer required.)
-									$pos = trim(substr($message, 1));
-
-									if ($pos !== NULL && ctype_digit($pos)) {
-										if (isset($lecture[$pos])) {
-											$position = $pos;
-											say("Slide position changed to " . $pos);
-										} else {
-											say("There isn't a slide assigned that number.");
-										}
-									} else {
-										say("Command 'c' requires a number to change the slide position to.");
-									}
-									break;
-									
-								case $command == "l" && $accessArray[$search]['level'] >= 1: // Changes to lecture mode (Level 1 'lecturer' required.)
-									if ($mode == "q" && $initiated == TRUE) {
-										$mode = "l";
-										cmd_send("MODE " . $channel . " +m");
-										talk($channel, "The lecture is now resuming.");
-										
-										
-										$time = format(time() - $startTime);
-										fwrite ($lectureHandle, "" . $time . " <" . $nick . "> The lecture is now resuming.\n");
-										
-										say("The lecture is now in lecture mode.");
-									} else {
-										say("The lecture is already in lecture mode.");
-									}
-									break;
-									
-								case $command == "q" && $accessArray[$search]['level'] >= 1: // Changes to question mode (Level 1 'lecturer' required.)
-									if ($mode == "l" && $initiated == TRUE) {
-										$mode = "q";
-										
-										cmd_send("MODE " . $channel . " -m");
-										talk($channel, "You may now ask questions if you wish.  This may also be considered intermission if the lector is taking a break.");
-										
-										
-										$time = format(time() - $startTime);
-										fwrite ($lectureHandle, "" . $time . " <" . $nick . "> You may now ask questions if you wish.  This may also be considered intermission if the lector is taking a break.\n");
-										
-										say("The lecture is now in question mode.");
-									} else {
-										say("The lecture is already in question mode.");
-									}
-									break;
-									
-								case $command == "e" && $accessArray[$search]['level'] >= 1: // Ends lecture (Level 1 'lecturer' required.)
-									if ($initiated == TRUE && $initiated == TRUE) {
-										$initiated = FALSE;
-										$mode = "q";
-										$record = FALSE;
-										
-										cmd_send("MODE " . $channel . " -m");
-										talk($channel, "The lecture has come to an end.  I hope you've enjoyed it!");
-										
-										$time = format(time() - $startTime);
-										fwrite ($lectureHandle, "" . $time . " <" . $nick . "> The lecture has come to an end.  I hope you enjoyed it!\n");
-										
-										say("The lecture has been ended.");
-									} else {
-										say("You have not initiated a lecture.");
-									}
-									break;
-							}
-						}
-					} elseif ($where == $channel && $initiated == TRUE) { // Recording
-						$time = format(time() - $startTime);
-						fwrite ($lectureHandle, "" . $time . " <" . $who . "> " . $message . "\n");
-					}
+			$who = substr($headerArray[0], 0, strpos($headerArray[0], "!"));
+			print_r($headerArray);
+			$what = strtolower($headerArray[1]);
+			
+			// Put applicable values in array based on type.
+			switch ($what) {
+				case "join":
+					$dataArray['who'] = $who;
+					$dataArray['hostmask'] = $headerArray[0];
+					$dataArray['where'] = $message;
 					break;
 					
-				case "NOTICE": // Used only for logging the user in.
-					$who = substr($hostmask, 0, strpos($hostmask, "!"));
-					
-					if ($registered == TRUE && $who == "NickServ" && $message == "If you do not change within one minute, I will change your nick.") {
-						cmd_send("PRIVMSG NickServ :IDENTIFY " . $password);
-					}
+				case "kick":
+					$dataArray['who'] = $who;
+					$dataArray['hostmask'] = $headerArray[0];
+					$dataArray['where'] = $headerArray[2];
+					$dataArray['person'] = $headerArray[3];
+					$dataArray['reason'] = $message;
 					break;
 					
-				case "JOIN": // Used for informing people that join during a lecture.
-					$who = substr($hostmask, 0, strpos($hostmask, "!"));
-					
-					if ($who !== $nick && $initiated == TRUE) {
-						talk($who, $postIntro);
-						talk($who, $rules);
-					}
+				case "notice":
+					$dataArray['who'] = $who;
+					$dataArray['hostmask'] = $headerArray[0];
+					$dataArray['person'] = $headerArray[2];
+					$dataArray['message'] = $message;
 					break;
 					
-				case "KICK": // Used for rejoining the channel if kicked.
-					$who = $remainingData[3];
-					
-					if ($who == $nick) {
-						cmd_send("JOIN " . $channel);
-					}
+				case "privmsg":
+					$dataArray['who'] = $who;
+					$dataArray['hostmask'] = $headerArray[0];
+					$dataArray['where'] = $headerArray[2];
+					$dataArray['message'] = $message;
 					break;
 			}
+			
+			// Running the hooks.
+			$modules->hook($what, $dataArray);
+			
+			// Run the recording hook.
+			$dataArray['action'] = $what;
+			$modules->hook('record', $dataArray);
 		}
 	}
 }

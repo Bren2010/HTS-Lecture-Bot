@@ -72,7 +72,7 @@ class modules
         foreach ($this->modules[$hook] as $module)
         {
             if (!$module['enabled']) continue;
-            $modue['module']($message);
+            $module['module']($message);
         }
     }
 }
