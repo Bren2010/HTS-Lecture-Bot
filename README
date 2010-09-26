@@ -1,0 +1,16 @@
+Title:  HTS Lecture Bot
+Current Version:  v3.0
+Description: The HTS Lecture Bot is made to provide a stable
+	yet flexible method for lecturers to organize, give, and
+	moderate informative lectures for HackThisSite.org site
+	members via HTS's own IRC network.
+	
+Official Contributors:
+	Brendan Mc. (Bren2010)
+	Joseph Moniz (Thetan)
+	
+
+IRC Server Information:
+	Server:  irc.hackthissite.org
+	Port:  6667 (7000 for SSL)
+	Channel:  #lecture

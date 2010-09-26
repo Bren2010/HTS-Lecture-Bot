@@ -86,11 +86,10 @@ class ircMsg
                     array(implode(' ', array_slice($lval, $key)))
                 );
                 $this->parameters = $lval;
-                print_r($this);
+                
                 return;
             }
         }
         $this->parameters = $lval;
-        print_r($this);
     }
 }
