@@ -1,0 +1,16 @@
+Definition 1: lim x->c f(x) = L means that when x is close to but different from c, then f(x) is near L.
+Definition 2: lim x->c+ f(x) = L means that when x is close to but on the right of c (the positive/right side), then f(x) is near L.
+Definition 3: lim x->c- f(x) = L means that when x is close to but on the left of c (the negative/left side), then f(x) is near L.
+Theorem: lim x->c f(x) = L <-> lim x->c- f(x) = L and lim x->c+ f(x) = L. (Why?)
+Definition Epsilon-Delta: Given epsilon > 0, there exists delta > 0 such that |f(x) - L| < epsilon, provided that |x - c| < delta
+Limit theorems (let n be an element of the positive integers, k be a constant, and f and g be functions which have limits at c, then;)
+lim x->c k = k
+lim x->c x = c
+lim x->c kf(x) = k * lim x->c f(x)
+lim x->c [f(x) + or - g(x)] = lim x->c f(x) + or - lim x->c g(x)
+lim x->c [f(x) * g(x)] = lim x->c f(x) * lim x->c g(x)
+lim x->c [f(x) / g(x)] = lim x->c f(x) / lim x->c g(x), as long as lim x->c g(x) != 0
+lim x->c [f(x)]^n = [lim x->c f(x)]^n
+Definition 4: Let f(x) be defined on an open interval containing c. We say that f(x) is continuous at c if lim x->c f(x) = f(c)
+Definition 4 (cont): Conditions: 1) lim x->c f(x) exists, 2) f(c) exists, 3) lim x->c f(x) = f(c)
+Theorem: A polynomial function is continuous at every real number c. A rational function is continuous at every real number c in its domain.
