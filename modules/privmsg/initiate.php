@@ -7,7 +7,7 @@ return function($message) {
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
 
-	$hostmask = $message->getHost();
+	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
 	
 	$search = searchAccess($hostmask, $accessArray);
 	
@@ -21,10 +21,12 @@ return function($message) {
 			global $channel;
 			global $intro;
 			global $rules;
+			global $startTime;
 			
 			$initiated = TRUE;
 			$mode = "l";
 			$position = 0;
+			$startTime = time();
 			
 			cmd_send("MODE " . $channel . " +m");
 			talk($channel, $intro . "\n" . $rules);

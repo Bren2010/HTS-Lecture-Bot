@@ -7,8 +7,7 @@ return function($message) {
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
 
-	$raw = $message->getRaw();
-	$hostmask = $message->getHost();
+	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
 	
 	$search = searchAccess($hostmask, $accessArray);
 	

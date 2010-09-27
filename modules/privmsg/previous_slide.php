@@ -3,8 +3,7 @@ return function($message) {
 	global $accessArray;
 	global $nick;
 	
-	$raw = $message->getRaw();
-	$hostmask = $message->getHost();
+	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
 	
 	$search = searchAccess($hostmask, $accessArray);
 	

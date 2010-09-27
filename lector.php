@@ -56,8 +56,10 @@ $position = 0;
 $mode = "q";
 $initiated = FALSE;
 
-$startTime = time();
-$lectureHandle = fopen("recording.log", "w");
+if ($record == TRUE) {
+	$startTime = time();
+	$lectureHandle = fopen("recording.log", "w");
+}
 
 $socket = fsockopen($server, $port);
 cmd_send("USER " . $nick . " " . $nick . " " . $nick . " : " . $nick); // Register user data.
@@ -78,10 +80,16 @@ while (1) {
 			$command = strtolower($message->getCommand());
 			
 			$modules->hook($command, $message);
+
+			
+			$text = smartResponse($message);
 			
 			if ($output == TRUE) {
-				$text = smartResponse($message);
-				echo $text;
+				echo $text['text'];
+			}
+			
+			if ($record == TRUE && $initiated == TRUE && $text['record'] == TRUE && $text['text'] != "") {
+				fwrite($lectureHandle, format(time() - $startTime) . " " . $text['text']);
 			}
 		}
 	}

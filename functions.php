@@ -64,10 +64,28 @@ function searchAccess($hostmask, $accessArray) {
 }
 
 function talk($where, $message) {
+	global $startTime;
+	global $nick;
+	
 	$array = explode("\n", $message);
+	
+	$recording = "";
+	$time = format(time() - $startTime);
 	
 	foreach ($array as $msg) {
 		cmd_send("PRIVMSG " . $where . " :" . $msg);
+		
+		$recording .= $time . "<" . $nick . "> " . $msg . "\n";
+	}
+	
+	// Added for recording.
+	global $channel;
+	global $record;
+	
+	if ($record == TRUE && $where == $channel) {
+		global $lectureHandle;
+		
+		fwrite($lectureHandle, $recording);
 	}
 }
 
@@ -80,6 +98,7 @@ function smartResponse($message) {
 	
 	switch ($command) {
 		case "join":
+			$record = TRUE;
 			$text = "* " . $nick . " has joined " . trim($parameters[0]) . ".";
 			break;
 			
@@ -92,7 +111,20 @@ function smartResponse($message) {
 			
 			$reason = trim(implode(" ", $parameters));
 			
+			$record = TRUE;
 			$text = "* " . $who . " has been kicked from " . $where . " by " . $nick . " (" . $reason . ")";
+			break;
+			
+		case "notice":
+			$noticeWhat = trim($parameters[1]);
+			
+			if (!empty($nick)) {
+				$record = FALSE;
+				$text = "-" . $nick . "- " . $noticeWhat;
+			} else {
+				$record = FALSE;
+				$text = $noticeWhat;
+			}
 			break;
 			
 		case "part":
@@ -100,6 +132,7 @@ function smartResponse($message) {
 			unset($parameters[0]);
 			$reason = trim(implode(" ", $parameters));
 			
+			$record = TRUE;
 			$text = "* " . $nick . " has left " . $channel . " (" . $reason . ")";
 			break;
 			
@@ -111,15 +144,32 @@ function smartResponse($message) {
 			$msg = trim(implode(" ", $parameters));
 			
 			if ($where == $channel) {
+				$record = TRUE;
 				$text = "<" . $nick . "> " . $msg;
+			} else {
+				$record = FALSE;
+				$text = ">" . $nick . "< " . $msg;
 			}
+			break;
+			
+		case "quit":
+			$reason = trim($parameters[0]);
+			
+			$record = TRUE;
+			$text = "* " . $nick . " has quit (" . $reason . ")";
 			break;
 	}
 	
+	$array = array();
+	
 	if ($text != "") {
-		return $text . "\n";
+		$array['text'] = $text . "\n";
+		$array['record'] = $record;
 	} else {
-		return "";
+		$array['text'] = "";
+		$array['record'] = FALSE;
 	}
+	
+	return $array;
 }
 ?>
