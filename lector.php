@@ -36,7 +36,7 @@ $output = $config['system']['output']; // Whether or not to output data sent to 
 $record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
-error_reporting(0);
+//error_reporting(0);
 
 if ($daemon == TRUE) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
