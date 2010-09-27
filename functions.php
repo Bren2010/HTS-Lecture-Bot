@@ -114,6 +114,11 @@ function smartResponse($message) {
 			$record = TRUE;
 			$text = "* " . $who . " has been kicked from " . $where . " by " . $nick . " (" . $reason . ")";
 			break;
+		
+		case "nick":
+			$record = TRUE;
+			$text = "* " . $message->getNick() . " is now known as " . trim($parameters[0]) . ".";
+			break;
 			
 		case "notice":
 			$noticeWhat = trim($parameters[1]);
@@ -125,6 +130,30 @@ function smartResponse($message) {
 				$record = FALSE;
 				$text = $noticeWhat;
 			}
+			break;
+			
+		case "mode":
+			$where = $parameters[0];
+			$modes = $parameters[1];
+			
+			unset($parameters[0]);
+			unset($parameters[1]);
+			
+			$operator = substr($modes, 0, 1);
+			$modeArray = str_split(substr($modes, 1));
+			
+			$preText = "";
+			
+			foreach ($parameters as $person) {
+				$currMode = current($modeArray);
+				
+				$preText .= "* " . $message->getNick() . " sets mode " . $operator . $currMode . " on " . $person . "\n";
+				
+				next($modeArray);
+			}
+			
+			$record = TRUE;
+			$text = trim($preText);
 			break;
 			
 		case "part":
