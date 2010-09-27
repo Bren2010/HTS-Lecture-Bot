@@ -21,8 +21,8 @@ $server = $config['server']['server'];
 $port = $config['server']['port'];
 $channel = $config['server']['channel'];
 
-$iniVar = array("%CHANNEL", "%LECTURER");
-$iniVal = array($config['server']['channel'], $config['lecture']['lector']);
+$iniVar = array("%CHANNEL", "%LECTURER", "\\n");
+$iniVal = array($config['server']['channel'], $config['lecture']['lector'], "\n");
 
 $intro = str_replace($iniVar, $iniVal, $config['lecture']['intro']);
 $postIntro = str_replace($iniVar, $iniVal, $config['lecture']['postIntro']);
@@ -36,7 +36,7 @@ $output = $config['system']['output']; // Whether or not to output data sent to 
 $record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
-//error_reporting(0);
+error_reporting(0);
 
 if ($daemon == TRUE) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
@@ -67,7 +67,6 @@ cmd_send("JOIN " . $channel); // Join default channel.
 
 while (1) {
 	while ($data = fgets($socket)) {
-		echo $data;
 		$pingCheck = substr($data, 0, strlen("PING :"));
 		
 		if ($pingCheck == "PING :") {
@@ -79,6 +78,11 @@ while (1) {
 			$command = strtolower($message->getCommand());
 			
 			$modules->hook($command, $message);
+			
+			if ($output == TRUE) {
+				$text = smartResponse($message);
+				echo $text;
+			}
 		}
 	}
 }

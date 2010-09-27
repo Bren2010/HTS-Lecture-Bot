@@ -1,7 +1,6 @@
-1.)  Smart Output/Recording
-	* Parsing and outputting/logging IRC data in a human readable manner.
+1.)  Smart Recording
+	* Parsing and logging IRC data in a human readable manner.
 
-2.)  Adding the rest of the modules.
-	* Modules like join->update to update users who join a lecture late.
+2.)  Commenting code/Writing documentation
 
-3.)  Commenting code/Writing documentation
+3.)  Adding QUIT to smart output

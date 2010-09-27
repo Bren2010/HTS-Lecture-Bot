@@ -70,4 +70,56 @@ function talk($where, $message) {
 		cmd_send("PRIVMSG " . $where . " :" . $msg);
 	}
 }
+
+function smartResponse($message) {
+	$nick = $message->getNick();
+	$command = strtolower($message->getCommand());
+	$parameters = $message->getParameters();
+	
+	$text = "";
+	
+	switch ($command) {
+		case "join":
+			$text = "* " . $nick . " has joined " . trim($parameters[0]) . ".";
+			break;
+			
+		case "kick":
+			$where = $parameters[0];
+			$who = $parameters[1];
+			
+			unset($parameters[0]);
+			unset($parameters[1]);
+			
+			$reason = trim(implode(" ", $parameters));
+			
+			$text = "* " . $who . " has been kicked from " . $where . " by " . $nick . " (" . $reason . ")";
+			break;
+			
+		case "part":
+			$channel = $parameters[0];
+			unset($parameters[0]);
+			$reason = trim(implode(" ", $parameters));
+			
+			$text = "* " . $nick . " has left " . $channel . " (" . $reason . ")";
+			break;
+			
+		case "privmsg":
+			global $channel;
+			
+			$where = $parameters[0];
+			unset($parameters[0]);
+			$msg = trim(implode(" ", $parameters));
+			
+			if ($where == $channel) {
+				$text = "<" . $nick . "> " . $msg;
+			}
+			break;
+	}
+	
+	if ($text != "") {
+		return $text . "\n";
+	} else {
+		return "";
+	}
+}
 ?>

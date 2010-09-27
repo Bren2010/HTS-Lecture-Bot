@@ -8,8 +8,7 @@ return function($message) {
 		global $postIntro;
 		global $rules;
 		
-		cmd_send("NOTICE " . $who . " :" . $postIntro);
-		cmd_send("NOTICE " . $who . " :" . $rules);
+		talk($message->getNick(), $postIntro . "\n" . $rules);
 	}
 }
 ?>
