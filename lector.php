@@ -36,7 +36,7 @@ $output = $config['system']['output']; // Whether or not to output data sent to 
 $record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
-//error_reporting(0);
+error_reporting(0);
 
 if ($daemon == TRUE) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
@@ -50,7 +50,7 @@ require_once("ircMsg.php");
 
 $modules = new modules();
 
-$lecture = explode("\n", trim(file_get_contents("lecture.txt")));
+$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
 
 $position = 0;
 $mode = "q";

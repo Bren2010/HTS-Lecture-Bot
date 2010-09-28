@@ -8,7 +8,7 @@ return function ($message) {
 	unset($parameters[0]);
 	$msg = trim(implode(" ", $parameters));
 	
-	if ($where == $nick && $msg == "rehash") {
+	if ($where == $nick && $msg == "quit") {
 		global $accessArray;
 		
 		$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
@@ -19,9 +19,8 @@ return function ($message) {
 			$level = $accessArray[$search]['level'];
 			
 			if ($level == '2') { // <-- Requires operator class
-				global $modules;
-				$modules->reload();
-				say("All modules have been rehashed.");
+				cmd_send("QUIT :Ordered by " . $message->getNick());
+				exit();
 			}
 		}
 	}
