@@ -38,7 +38,7 @@ $record = $config['system']['record']; // Used for recording the lecture.
 /******************* CODE ********************/
 error_reporting(0);
 
-if ($daemon == TRUE) {
+if ($daemon) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
 }
 
@@ -56,7 +56,7 @@ $position = 0;
 $mode = "q";
 $initiated = FALSE;
 
-if ($record == TRUE) {
+if ($record) {
 	$startTime = time();
 	$lectureHandle = fopen("recording.log", "w");
 }
@@ -67,31 +67,31 @@ cmd_send("NICK " . $nick); // Change nick.
 			
 cmd_send("JOIN " . $channel); // Join default channel.
 
-while (1) {
-	while ($data = fgets($socket)) {
-		$pingCheck = substr($data, 0, strlen("PING :"));
-		
-		if ($pingCheck == "PING :") {
-			$pong = substr($data, strlen("PING :"));
-			cmd_send("PONG :" . $pong);
-		} else {
-			$message = new ircMsg($data);
-			
-			$command = strtolower($message->getCommand());
-			
-			$modules->hook($command, $message);
-
-			
-			$text = smartResponse($message);
-			
-			if ($output == TRUE) {
-				echo $text['text'];
-			}
-			
-			if ($record == TRUE && $initiated == TRUE && $text['record'] == TRUE && $text['text'] != "") {
-				fwrite($lectureHandle, format(time() - $startTime) . " " . $text['text']);
-			}
-		}
-	}
+while (!feof($socket)) {
+    $data = fgets($socket);
+    $pingCheck = substr($data, 0, strlen("PING :"));
+            
+    if ($pingCheck == "PING :") {
+        $pong = substr($data, strlen("PING :"));
+        cmd_send("PONG :" . $pong);
+    } else {
+        $message = new ircMsg($data);
+                
+        $command = strtolower($message->getCommand());
+                
+        $modules->hook($command, $message);
+    
+        $text = smartResponse($message);
+                
+        if ($output) echo $text['text'];
+    
+                
+        if ($record && $initiated && $text['record'] && $text['text'] != "") {
+            fwrite($lectureHandle, format(time() - $startTime) . " " . $text['text']);
+        }
+    }
 }
+echo 'wAT!
+
+';
 ?>

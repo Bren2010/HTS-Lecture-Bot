@@ -1,33 +1,28 @@
 
 return function ($message) {
+	global $accessArray;
+	global $initiated;
 	global $nick;
 	
 	$parameters = $message->getParameters();
-	
 	$where = $parameters[0];
-	unset($parameters[0]);
-	$msg = trim(implode(" ", $parameters));
+    
+    if ($where != $nick) return;
+    
+    $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    if (!searchAccess($hostmask, $accessArray)) return;
+    
+    if ($level = $accessArray[$search]['level'] != 2) return;
 	
-	if ($where == $nick && $msg == "reload_lecture") {
-		global $accessArray;
-		
-		$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
-		
-		$search = searchAccess($hostmask, $accessArray);
-		
-		if ($search !== FALSE) {
-			$level = $accessArray[$search]['level'];
-			
-			if ($level == '2') { // <-- Requires operator class
-				global $lecture;
-				global $position;
+    list($msg) = explode(" ", $parameters[1]);
+	if ($msg != 'reload_lecture') return;
+	
+	global $lecture;
+	global $position;
 				
-				$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
-				$position = 0;
+	$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
+	$position = 0;
 				
-				say("The lecture has been reloaded and slide position set to 0.");
-			}
-		}
-	}
-}
+	say("The lecture has been reloaded and slide position set to 0.");
+};
 ?>

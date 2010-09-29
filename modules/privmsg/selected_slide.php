@@ -1,35 +1,33 @@
 
 return function($message) {
 	global $accessArray;
+	global $initiated;
 	global $nick;
-	
-	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
-	
-	$search = searchAccess($hostmask, $accessArray);
 	
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
-	$command = substr(trim($parameters[1]), 0, 1);;
+    
+    if ($where != $nick) return;
+    
+    $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    if (!searchAccess($hostmask, $accessArray)) return;
 	
-	if ($search !== FALSE && $where == $nick && $command == "s") {
-		global $initiated;
-		
-		if ($initiated == TRUE) {
-			global $channel;
-			global $position;
-			global $lecture;
+	if ($parameters[1][0] != 's') return;
+    
+    if (!$initiated) 
+        return say("Please initiate a lecture to use this command.");
+	
+	global $channel;
+	global $position;
+	global $lecture;
 			
-			$realPos = trim(substr($parameters[1], 1));
+	$realPos = trim(substr($parameters[1], 1));
 			
-			if (!empty($lecture[$realPos])) {
-				talk($channel, $lecture[$realPos]);
-				say("Played slide " . $realPos . " on request.");
-			} else {
-				say("The requested slide could not be found.");
-			}
-		} else {
-			say("Please initiate a lecture to show slides.");
-		}
+	if (!empty($lecture[$realPos])) {
+		talk($channel, $lecture[$realPos]);
+		say("Played slide " . $realPos . " on request.");
+	} else {
+		say("The requested slide could not be found.");
 	}
-}
+};
 ?>

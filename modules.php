@@ -69,8 +69,9 @@ class modules
     {
         if (!$this->modules[$hook]) return;
         
-        foreach ($this->modules[$hook] as $module)
+        foreach ($this->modules[$hook] as $name => $module)
         {
+            echo "{$name}\n";
             if (!$module['enabled']) continue;
             $module['module']($message);
         }

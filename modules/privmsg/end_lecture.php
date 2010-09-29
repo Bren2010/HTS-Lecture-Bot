@@ -6,30 +6,27 @@ return function($message) {
 	
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
-
-	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
 	
-	$search = searchAccess($hostmask, $accessArray);
+    if ($where != $nick) return;
+    
+    $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    if (!searchAccess($hostmask, $accessArray)) return;
 	
-	$text = trim($parameters[1]);		
-				
-	if ($where == $nick && $search !== FALSE && $text == "e") {
+	if ($parameters[1][0] != 'e') return;
+    
+    if (!$initiated) 
+        return say("No lecture has been initiated.");
 
-		if ($initiated == TRUE) {
-			global $mode;
-			global $channel;
-			global $intro;
-			global $rules;
+		global $mode;
+		global $channel;
+		global $intro;
+		global $rules;
 			
-			$initiated = FALSE;
-			$mode = "q";
+		$initiated = FALSE;
+		$mode = "q";
 			
-			cmd_send("MODE " . $channel . " -m");
-			talk($channel, "The lecture has come to an end.  I hope you enjoyed it and learned something new!");
-			say("The lecture has been ended.");
-		} else {
-			say("No lecture has been initiated.");
-		}
-	}
-}
+		cmd_send("MODE " . $channel . " -m"); 
+		talk($channel, "The lecture has come to an end.  I hope you enjoyed it and learned something new!");
+		say("The lecture has been ended.");
+};
 ?>

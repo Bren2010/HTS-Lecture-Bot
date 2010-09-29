@@ -6,33 +6,29 @@ return function($message) {
 	
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
-
-	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    
+    if ($where != $nick) return;
+    
+    $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    if (!searchAccess($hostmask, $accessArray)) return;
 	
-	$search = searchAccess($hostmask, $accessArray);
+	if ($parameters[1][0] != 'l') return;
+    
+    if (!$initiated) 
+        return say("Please initiate a lecture to use this command.");
 	
-	$text = trim($parameters[1]);		
-				
-	if ($where == $nick && $search !== FALSE && $text == "l") {
-
-		if ($initiated == TRUE) {
-			global $mode;
+	
+	global $mode;
 			
-			if ($mode == "q") {
-				global $channel;
-				global $lector;
+	if ($mode == "q") {
+		global $channel;
+		global $lector;
+        
+		$mode = "l";
 				
-				$mode = "l";
-				
-				cmd_send("MODE " . $channel . " +m");
-				talk($channel, "The lecture is now resuming, so please end any off topic discussions and redirect your attention back to " . $lector . ".");
-				say("The lecture is now in lecture mode.");
-			} else {
-				say("The lecture is already in lecture mode.");
-			}
-		} else {
-			say("Please initiate a lecture to use this command.");
-		}
-	}
-}
+		cmd_send("MODE " . $channel . " +m");
+		talk($channel, "The lecture is now resuming, so please end any off topic discussions and redirect your attention back to " . $lector . ".");
+		say("The lecture is now in lecture mode.");
+    }
+};
 ?>

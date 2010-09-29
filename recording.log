@@ -1,0 +1,30 @@
+[00:00:00]<DevLector2> The lecture is about to begin, so the channel will be muted until the speaker periodically unmutes it for questions.  Our speaker today is Romnous, and I hope you enjoy the lecture!
+[00:00:00]<DevLector2> Any flooding, trolling, flaming, or interuption will result in a verbal warning.  If it continues, you will be kick banned from the channel.  If you feel a ban should be repealed, contact Monica.
+[00:00:07]<DevLector2> The lecture has come to an end.  I hope you enjoyed it and learned something new!
+[00:00:00]<DevLector2> The lecture is about to begin, so the channel will be muted until the speaker periodically unmutes it for questions.  Our speaker today is Romnous, and I hope you enjoy the lecture!
+[00:00:00]<DevLector2> Any flooding, trolling, flaming, or interuption will result in a verbal warning.  If it continues, you will be kick banned from the channel.  If you feel a ban should be repealed, contact Monica.
+[00:00:01]<DevLector2> Definition 1: lim x->c f(x) = L means that when x is close to but different from c, then f(x) is near L.
+[00:00:01]<DevLector2> Definition 2: lim x->c+ f(x) = L means that when x is close to but on the right of c (the positive/right side), then f(x) is near L.
+[00:00:01]<DevLector2> Definition 3: lim x->c- f(x) = L means that when x is close to but on the left of c (the negative/left side), then f(x) is near L.
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> Theorem: lim x->c f(x) = L <-> lim x->c- f(x) = L and lim x->c+ f(x) = L. (Why?)
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> Definition Epsilon-Delta: Given epsilon > 0, there exists delta > 0 such that |f(x) - L| < epsilon, provided that |x - c| < delta
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> Limit theorems (let n be an element of the positive integers, k be a constant, and f and g be functions which have limits at c, then;)
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> lim x->c k = k
+[00:00:01]<DevLector2> lim x->c x = c
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> lim x->c kf(x) = k * lim x->c f(x)
+[00:00:01]<DevLector2> lim x->c [f(x) + or - g(x)] = lim x->c f(x) + or - lim x->c g(x)
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> lim x->c [f(x) * g(x)] = lim x->c f(x) * lim x->c g(x)
+[00:00:01]<DevLector2> lim x->c [f(x) / g(x)] = lim x->c f(x) / lim x->c g(x), as long as lim x->c g(x) != 0
+[00:00:01]<DevLector2> lim x->c [f(x)]^n = [lim x->c f(x)]^n
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> Definition 4: Let f(x) be defined on an open interval containing c. We say that f(x) is continuous at c if lim x->c f(x) = f(c)
+[00:00:01]<DevLector2> Definition 4 (cont): Conditions: 1) lim x->c f(x) exists, 2) f(c) exists, 3) lim x->c f(x) = f(c)
+[00:00:01]<DevLector2> 
+[00:00:01]<DevLector2> Theorem: A polynomial function is continuous at every real number c. A rational function is continuous at every real number c in its domain.
+[00:01:00]<DevLector2> The lecture has come to an end.  I hope you enjoyed it and learned something new!

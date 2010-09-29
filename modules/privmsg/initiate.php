@@ -6,34 +6,31 @@ return function($message) {
 	
 	$parameters = $message->getParameters();
 	$where = $parameters[0];
-
-	$hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    
+    if ($where != $nick) return;
+    
+    $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
+    if (!searchAccess($hostmask, $accessArray)) return;
 	
-	$search = searchAccess($hostmask, $accessArray);
-	
-	$text = trim($parameters[1]);		
-				
-	if ($where == $nick && $search !== FALSE && $text == "i") {
-
-		if ($initiated == FALSE) {
-			global $mode;
-			global $position;
-			global $channel;
-			global $intro;
-			global $rules;
-			global $startTime;
+	if ($parameters[1][0] != 'i') return;
+    
+    if ($initiated) 
+        return say("The lecture has already been initiated.");
+    
+	global $mode;
+	global $position;
+	global $channel;
+	global $intro;
+	global $rules;
+	global $startTime;
 			
-			$initiated = TRUE;
-			$mode = "l";
-			$position = 0;
-			$startTime = time();
+	$initiated = TRUE;
+	$mode = "l";
+	$position = 0;
+	$startTime = time();
 			
-			cmd_send("MODE " . $channel . " +m");
-			talk($channel, $intro . "\n" . $rules);
-			say("The lecture has been initiated.");
-		} else {
-			say("The lecture has already been initiated.");
-		}
-	}
-}
+	cmd_send("MODE " . $channel . " +m"); 
+	talk($channel, $intro . "\n" . $rules);
+	say("The lecture has been initiated.");
+};
 ?>
