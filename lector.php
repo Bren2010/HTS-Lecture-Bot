@@ -91,7 +91,4 @@ while (!feof($socket)) {
         }
     }
 }
-echo 'wAT!
-
-';
 ?>
