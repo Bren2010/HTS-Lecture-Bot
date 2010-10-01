@@ -10,16 +10,17 @@ return function ($message) {
     if ($where != $nick) return;
     
     $hostmask = $message->getNick() . "!" . $message->getName() . "@" . $message->getHost();
-    if (!searchAccess($hostmask, $accessArray)) return;
+    
+    $search = searchAccess($hostmask, $accessArray);
+    if (!$search) return;
     
     if ($level = $accessArray[$search]['level'] != 2) return;
 	
-    list($msg) = explode(" ", $parameters[1]);
-	if ($msg != 'reload_access') return;
+    $msg = trim($parameters[1]);
+    
+	if ($msg != 'reload access') return;
 
 	$config = parse_ini_file("config.ini", true);
-				
-	global $accessArray;
 	
 	$accessArray = $config['access'];
 	
