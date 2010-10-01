@@ -50,7 +50,9 @@ require_once("ircMsg.php");
 
 $modules = new modules();
 
-$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
+$lecture = explode("
+
+", trim(file_get_contents("lecture.txt")));
 
 $position = 0;
 $mode = "q";
