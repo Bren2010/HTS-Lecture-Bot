@@ -23,7 +23,9 @@ return function ($message) {
 	global $lecture;
 	global $position;
 				
-	$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
+	$lecture = explode("
+
+", trim(file_get_contents("lecture.txt")));
 	$position = 0;
 				
 	say("The lecture has been reloaded and slide position set to 0.");
