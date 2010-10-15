@@ -1,4 +1,5 @@
 Definition 1: lim x->c f(x) = L means that when x is close to but different from c, then f(x) is near L.
+
 Definition 2: lim x->c+ f(x) = L means that when x is close to but on the right of c (the positive/right side), then f(x) is near L.
 Definition 3: lim x->c- f(x) = L means that when x is close to but on the left of c (the negative/left side), then f(x) is near L.
 

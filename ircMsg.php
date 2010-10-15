@@ -6,7 +6,6 @@ class ircMsg
     private $nick;
     private $name;
     private $host;
-    private $server;
     private $command;
     private $parameters = array();
     
@@ -35,11 +34,6 @@ class ircMsg
         return $this->host;
     }
     
-    public function getServer()
-    {
-        return $this->server;
-    }
-    
     public function getCommand()
     {
         return $this->command;
@@ -50,46 +44,56 @@ class ircMsg
         return $this->parameters;
     }
     
-    private function parse($message)
+    private function parse($preMessage)
     {
-        $this->raw = $message;
+        $this->raw = $preMessage;
         
-        list($lval, $message) = explode(' ', $message, 2);
-        if ($lval[0] =  ':')
-        {
-            $lval = explode('!', $lval, 2);
-            
-            if (count($lval) === 1)
-            {
-                $this->message = substr($lval, 1);
-            }
-            else
-            {
-                list($this->nick, $sub) = $lval;
-                $this->nick = substr($this->nick, 1);
-                list($this->name, $this->host) = explode('@', $sub, 2);
-            }
-            
-            list($lval, $message) = explode(' ', $message, 2);
-        }
+        $message = substr($preMessage, 1);
+        $array = explode(" ", $message);
         
-        $this->command = $lval;
+        // Define the constants.
+        $id = $array[0];
+        $command = $array[1];
         
-        $lval = explode(' ', $message);
-        foreach ($lval as $key => $value)
-        {
-            if ($value[0] == ':')
-            {
-                $lval[$key] = substr($value, 1);
-                $lval = array_merge(
-                    array_slice($lval, 0, $key),
-                    array(implode(' ', array_slice($lval, $key)))
-                );
-                $this->parameters = $lval;
-                
-                return;
-            }
-        }
-        $this->parameters = $lval;
+        $this->command = $command;
+        
+        $idArray = explode("@", $id);
+        $userArray = explode("!", $idArray[0]);
+        
+        if (isset($idArray[1])) {
+			$this->nick = $userArray[0];
+			$this->name = $userArray[1];
+			$this->host = $idArray[1];
+			$improv = FALSE;
+		} else {
+			$this->nick = $idArray[0];
+			$this->name = $idArray[0];
+			$this->host = $idArray[0];
+			$improv = TRUE;
+		}
+        
+        $delimiter = strpos($message, " :");
+        
+        if ($delimiter == FALSE) {
+			$tempParameters = $array;
+			
+			unset($tempParameters[0]);
+			unset($tempParameters[1]);
+			
+			$tempParams = $tempParameters;
+		} else {
+			$delMessage = substr($message, $delimiter + 2);
+			
+			if ($improv == FALSE) {
+				$length = strlen($this->nick . "!" . $this->name . "@" . $this->host . " " . $this->command);
+			} else {
+				$length = strlen($this->nick . " " . $this->command);
+			}
+			$remainingParameters = trim(substr($message, $length, $delimiter - $length));
+			
+			$tempParams = explode(" ", $remainingParameters);
+			array_push($tempParams, $delMessage);
+		}
+		$this->parameters = array_merge(array(), array_filter($tempParams));
     }
 }

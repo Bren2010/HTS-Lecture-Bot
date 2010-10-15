@@ -13,39 +13,6 @@ function say($message) {
 	}
 }
 
-function format($seconds) {
-	$preHours = $seconds - ($seconds % 3600);
-	$preMinutes = $seconds - ($seconds % 60);
-	
-	$unFhours = $preHours / 3600;
-	$unFminutes = $preMinutes / 60;
-	$unFseconds = $seconds - ($preHours + $preMinutes);
-	
-	$hours_len = strlen($unFhours);
-	$minutes_len = strlen($unFminutes);
-	$seconds_len = strlen($unFseconds);
-	
-	if ($hours_len != 2) {
-		$format_hours = "0" . $unFhours;
-	} else {
-		$format_hours = $unFhours;
-	}
-	
-	if ($minutes_len != 2) {
-		$format_minutes = "0" . $unFminutes;
-	} else {
-		$format_minutes = $unFminutes;
-	}
-	
-	if ($seconds_len != 2) {
-		$format_seconds = "0" . $unFseconds;
-	} else {
-		$format_seconds = $unFseconds;
-	}
-	
-	return "[" . $format_hours . ":" . $format_minutes . ":" . $format_seconds . "]";
-}
-
 function searchAccess($hostmask, $accessArray) {
 	$return = FALSE;
 	
@@ -66,26 +33,21 @@ function searchAccess($hostmask, $accessArray) {
 function talk($where, $message) {
 	global $startTime;
 	global $nick;
+	global $channel;
 	
 	$array = explode("\n", $message);
-	
-	$recording = "";
-	$time = format(time() - $startTime);
 	
 	foreach ($array as $msg) {
 		cmd_send("PRIVMSG " . $where . " :" . $msg);
 		
-		$recording .= $time . "<" . $nick . "> " . $msg . "\n";
-	}
-	
-	// Added for recording.
-	global $channel;
-	global $record;
-	
-	if ($record == TRUE && $where == $channel) {
-		global $lectureHandle;
-		
-		fwrite($lectureHandle, $recording);
+		// Added for recording.
+		if ($channel == $where) {
+			$parser = new ircMsg(":" . $nick . "!" . $nick . "@bren2010.com PRIVMSG " . $where . " :" . $msg . "\n");
+			
+			$lectorText = smartResponse($parser);
+			
+			echo $lectorText['text'];
+		}
 	}
 }
 
@@ -192,13 +154,18 @@ function smartResponse($message) {
 	$array = array();
 	
 	if ($text != "") {
-		$array['text'] = $text . "\n";
-		$array['record'] = $record;
+		$array['text'] = date("[h:i:s] ", time()) . " " . $text . "\n";
+		$array['record'] = date("[h:i:s] ", time()) . " " . $record;
+		
+		if ($record == FALSE) {
+			$array['text'] = "// " . $array['text'];
+			$array['record'] = "// " . $array['record'];
+		}
 	} else {
 		$array['text'] = "";
 		$array['record'] = FALSE;
 	}
-	
+
 	return $array;
 }
 ?>

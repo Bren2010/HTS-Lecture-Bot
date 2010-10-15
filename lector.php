@@ -33,10 +33,9 @@ $lector = $config['lecture']['lector'];
 // System Settings
 $daemon = $config['system']['daemon']; // Run the bot as a daemon.
 $output = $config['system']['output']; // Whether or not to output data sent to it.
-$record = $config['system']['record']; // Used for recording the lecture.
 
 /******************* CODE ********************/
-error_reporting(0);
+//error_reporting(0);
 
 if ($daemon) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
@@ -50,18 +49,11 @@ require_once("ircMsg.php");
 
 $modules = new modules();
 
-$lecture = explode("
-
-", trim(file_get_contents("lecture.txt")));
+$lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
 
 $position = 0;
 $mode = "q";
 $initiated = FALSE;
-
-if ($record) {
-	$startTime = time();
-	$lectureHandle = fopen("recording.log", "w");
-}
 
 $socket = fsockopen($server, $port);
 cmd_send("USER " . $nick . " " . $nick . " " . $nick . " : " . $nick); // Register user data.
@@ -86,11 +78,6 @@ while (!feof($socket)) {
         $text = smartResponse($message);
                 
         if ($output) echo $text['text'];
-    
-                
-        if ($record && $initiated && $text['record'] && $text['text'] != "") {
-            fwrite($lectureHandle, format(time() - $startTime) . " " . $text['text']);
-        }
     }
 }
 ?>

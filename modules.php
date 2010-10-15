@@ -67,7 +67,7 @@ class modules
     
     public function hook($hook, $message)
     {
-        if (!$this->modules[$hook]) return;
+        if (!isset($this->modules[$hook])) return;
         
         foreach ($this->modules[$hook] as $module)
         {
