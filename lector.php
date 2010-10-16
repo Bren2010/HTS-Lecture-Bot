@@ -34,6 +34,12 @@ $lector = $config['lecture']['lector'];
 $daemon = $config['system']['daemon']; // Run the bot as a daemon.
 $output = $config['system']['output']; // Whether or not to output data sent to it.
 
+// Database Settings
+$dbUsername = $config['database']['username'];
+$dbPassword = $config['database']['password'];
+$dbHostname = $config['database']['hostname'];
+$dbDatabase = $config['database']['database'];
+
 /******************* CODE ********************/
 //error_reporting(0);
 
