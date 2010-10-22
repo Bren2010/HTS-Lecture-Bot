@@ -11,16 +11,15 @@ Version: 2.0
 /*************** CONFIGURATION ***************/
 $config = parse_ini_file("config.ini", TRUE);
 
+// NickServ data.
 $nick = $config['nickserv']['nick'];
 $registered = $config['nickserv']['registered'];
-$password = $config['nickserv']['password'];
+$NSpassword = $config['nickserv']['password'];
 
+// Access list.
 $accessArray = $config['access'];
 
-$server = $config['server']['server'];
-$port = $config['server']['port'];
-$channel = $config['server']['channel'];
-
+// Lecture Specific Info
 $iniVar = array("%CHANNEL", "%LECTURER", "\\n");
 $iniVal = array($config['server']['channel'], $config['lecture']['lector'], "\n");
 
@@ -30,18 +29,24 @@ $rules = str_replace($iniVar, $iniVal, $config['lecture']['rules']);
 
 $lector = $config['lecture']['lector'];
 
+// Server Settings
+$server = $config['server']['server'];
+$port = $config['server']['port'];
+$channel = $config['server']['channel'];
+$serverPass = $config['server']['password'];
+
 // System Settings
 $daemon = $config['system']['daemon']; // Run the bot as a daemon.
 $output = $config['system']['output']; // Whether or not to output data sent to it.
-
-// Database Settings
-$dbUsername = $config['database']['username'];
-$dbPassword = $config['database']['password'];
-$dbHostname = $config['database']['hostname'];
-$dbDatabase = $config['database']['database'];
+$rawOutput = $config['system']['rawOutput']; // Whether or not to show raw output.
+$errors = $config['system']['errors']; // Used to determine if errors should be outputted.
 
 /******************* CODE ********************/
-//error_reporting(0);
+if ($errors) {
+	error_reporting(E_ALL);
+} else {
+	error_reporting(0);
+}
 
 if ($daemon) {
 	if(pcntl_fork()) die(); // This turns the bot into a daemon.
@@ -55,35 +60,70 @@ require_once("ircMsg.php");
 
 $modules = new modules();
 
+$quietArray = array(); // Array to not accept commands from (May be users/channels).
+$globalAction = "";  // For trans-module actions.
+
 $lecture = explode("\n\n", trim(file_get_contents("lecture.txt")));
 
 $position = 0;
 $mode = "q";
 $initiated = FALSE;
 
-$socket = fsockopen($server, $port);
+$socket = fsockopen($server, $port) or die ("Could not connect.\n");
+
+sleep(1);
+
+if (!empty($serverPass)) {
+	cmd_send("PASS :" . $serverPass);
+}
+
 cmd_send("USER " . $nick . " " . $nick . " " . $nick . " : " . $nick); // Register user data.
 cmd_send("NICK " . $nick); // Change nick.
-			
 cmd_send("JOIN " . $channel); // Join default channel.
 
-while (!feof($socket)) {
-    $data = fgets($socket);
-    $pingCheck = substr($data, 0, strlen("PING :"));
-            
-    if ($pingCheck == "PING :") {
-        $pong = substr($data, strlen("PING :"));
-        cmd_send("PONG :" . $pong);
-    } else {
-        $message = new ircMsg($data);
-                
-        $command = strtolower($message->getCommand());
-                
-        $modules->hook($command, $message);
-    
-        $text = smartResponse($message);
-                
-        if ($output) echo $text['text'];
-    }
+while (1) {
+	while ($data = fgets($socket)) {
+		$pingCheck = substr($data, 0, strlen("PING :"));
+			
+		if ($pingCheck == "PING :") { // Play ping-pong.
+			$pong = substr($data, strlen("PING :"));
+			
+			cmd_send("PONG :" . $pong);
+		} elseif (!empty($data)) {
+			$message = new ircMsg($data);
+
+			if ($output && $rawOutput == FALSE) {
+				$smartData = array('command' => strtolower($message->getCommand()), 'message' => $message);
+				
+				$modules->hook('smartOutput', $smartData);
+			} elseif ($output == TRUE) {
+				echo $data;
+			}
+		
+			$command = trim(strtolower($message->getCommand()));
+			
+			if ($command == "privmsg") {
+				// First part of this is ensuring that the user/channel isn't on the ignore list.
+				$parameters = $message->getParameters();
+				
+				$preWhere = trim($parameters[0]);
+				
+				if ($preWhere == $message->getNick()) {
+					$where = $message->getNick();
+				} else {
+					$where = $parameters[0];
+				}
+				
+				$chanSearch = array_search($where, $quietArray);
+				$nickSearch = array_search($message->getNick(), $quietArray);
+			
+				if ($chanSearch === FALSE && $nickSearch === FALSE) {					
+					$modules->hook($command, $message);
+				}
+			} else {
+				$modules->hook($command, $message);
+			}
+		} 
+	}
 }
 ?>

@@ -1,0 +1,10 @@
+ 1287765455 -hub.irc.hackthissite.org- *** Looking up your hostname...
+1287765455 -hub.irc.hackthissite.org- *** Found your hostname (cached)
+1287765455 >IRC< VERSION
+1287765455 -hub.irc.hackthissite.org- *** You are connected to hub.irc.hackthissite.org with TLSv1-AES256-SHA-256bits
+1287765455 * LectorBeta has joined #bren2010.
+1287765455 * HTS-Bot sets mode +v on LectorBeta
+1287765479 <Brendan> w00t
+1287765485 <Brendan> php lector.php | tee lecture.log
+1287765495 <Brendan> 1337 shit right thar
+1287765498 <Brendan> 'member tat

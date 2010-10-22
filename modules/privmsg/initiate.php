@@ -23,7 +23,9 @@ return function($message) {
 	global $intro;
 	global $rules;
 	global $startTime;
-			
+	
+	echo ("\n<!-- LECTURE STARTS HERE -- LECTURE STARTS HERE -->\n");
+		
 	$initiated = TRUE;
 	$mode = "l";
 	$position = 0;

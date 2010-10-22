@@ -1,4 +1,4 @@
-
+//<?php
 return function ($message) {
 	global $accessArray;
 	global $initiated;

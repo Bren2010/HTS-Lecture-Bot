@@ -21,12 +21,14 @@ return function($message) {
 		global $channel;
 		global $intro;
 		global $rules;
-			
+		
 		$initiated = FALSE;
 		$mode = "q";
 			
 		cmd_send("MODE " . $channel . " -m"); 
 		talk($channel, "The lecture has come to an end.  I hope you enjoyed it and learned something new!");
 		say("The lecture has been ended.");
+		
+		echo ("<!-- LECTURE ENDS HERE -- LECTURE ENDS HERE -->\n\n");
 };
 ?>
